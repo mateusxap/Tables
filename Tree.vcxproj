@@ -144,6 +144,7 @@
     <ClInclude Include="TArrayTable.h" />
     <ClInclude Include="THashTable.h" />
     <ClInclude Include="TListHash.h" />
+    <ClInclude Include="TListTable.h" />
     <ClInclude Include="TScanTable.h" />
     <ClInclude Include="TSortTable.h" />
     <ClInclude Include="TTable.h" />
@@ -155,6 +156,7 @@
     <ClCompile Include="TArrayHash.cpp" />
     <ClCompile Include="THashTable.cpp" />
     <ClCompile Include="TListHash.cpp" />
+    <ClCompile Include="TListTable.cpp" />
     <ClCompile Include="TSortTable.cpp" />
     <ClCompile Include="TTreeTable.cpp" />
   </ItemGroup>
