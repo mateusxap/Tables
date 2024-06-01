@@ -27,15 +27,19 @@ public:
 
     bool Find(int _key)
     {
+        efficiency = 0;
         CurrList = HashFunc(_key) % size;
+        std::cout << "Номер списка в хэше: " << CurrList << std::endl;
         for (pCurr = pList[CurrList].begin(); pCurr != pList[CurrList].end(); ++pCurr)
         {
             efficiency++;
             if (pCurr->key == _key)
             {
+                std::cout << "Эффективность хэш таблицы: " << efficiency << "\n";
                 return true;
             }
         }
+        std::cout << "Эффективность хэш таблицы: " << efficiency << "\n";
         return false;
     }
 

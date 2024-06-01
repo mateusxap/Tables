@@ -161,6 +161,7 @@ inline void TSortTable::ScanToSort(TScanTable& table, SortType sortType)
 
 inline bool TSortTable::Find(int key)
 {
+	efficiency = 0;
 	int begin = 0, end = this->dataCount - 1, middle;
 	while (begin <= end)
 	{
@@ -174,11 +175,13 @@ inline bool TSortTable::Find(int key)
 		{
 			end = middle - 1;
 		}
-		else { 
+		else {
+			std::cout << "Ёффективность таблицы на отсортированном массиве: " << efficiency << "\n";
 			this->currentPos = middle; return true; 
 		}
 	}
 	this->currentPos = begin;
+	std::cout << "Ёффективность таблицы на отсортированном массиве: " << efficiency << "\n";
 	return false;
 }
 

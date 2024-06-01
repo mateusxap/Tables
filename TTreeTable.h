@@ -40,25 +40,19 @@ public:
 		pPrev = nullptr;
 		countpos = 0; lvl = 0;
 	}
-
-	bool Find(int key)
-	{
-		if (pCurr != nullptr)
-		{
-			if (pCurr->rec.key == key)
-			{
+	bool Find(int key) override {
+		efficiency = 0;
+		pCurr = pRoot;
+		pPrev = nullptr;
+		while (pCurr != nullptr) {
+			efficiency++;
+			if (pCurr->rec.key == key) {
+				std::cout << "Ёффективность таблицы на дереве: " << efficiency << "\n";
 				return true;
 			}
-		}
-		pCurr = pRoot; pPrev = nullptr;
-		while (pCurr != nullptr)
-		{
-			efficiency++;
-			if (pCurr->rec.key == key) break;
 			else {
 				pPrev = pCurr;
-				if (pCurr->rec.key > key)
-				{
+				if (pCurr->rec.key > key) {
 					pCurr = pCurr->pLeft;
 				}
 				else {
@@ -66,15 +60,49 @@ public:
 				}
 			}
 		}
-		if (pCurr != nullptr) {
-			return true;
-		}
-		else {
-			pCurr = pPrev;
-			return false;
-		}
+		std::cout << "Ёффективность таблицы на дереве: " << efficiency << "\n";
+		return false;
+	}
 
-    }
+	//bool Find(int key)
+	//{
+	//	efficiency = 0;
+	//	if (pCurr != nullptr)
+	//	{
+	//		if (pCurr->rec.key == key)
+	//		{
+
+	//			std::cout << "Ёффективность таблицы на дереве: " << efficiency << "\n";
+	//			return true;
+	//		}
+	//	}
+	//	pCurr = pRoot; pPrev = nullptr;
+	//	while (pCurr != nullptr)
+	//	{
+	//		efficiency++;
+	//		if (pCurr->rec.key == key) break;
+	//		else {
+	//			pPrev = pCurr;
+	//			if (pCurr->rec.key > key)
+	//			{
+	//				pCurr = pCurr->pLeft;
+	//			}
+	//			else {
+	//				pCurr = pCurr->pRight;
+	//			}
+	//		}
+	//	}
+	//	if (pCurr != nullptr) { 
+	//		std::cout << "Ёффективность таблицы на дереве: " << efficiency << "\n";
+	//		return true;
+	//	}
+	//	else {
+	//		pCurr = pPrev;
+	//		std::cout << "Ёффективность таблицы на дереве: " << efficiency << "\n";
+	//		return false;
+	//	}
+	//	
+ //   }
 	bool Insert(TRecord _rec)
 	{
 		if (Find(_rec.key))
@@ -280,7 +308,12 @@ public:
 	}
 	int GetRooint()
 	{
+		if (pRoot == nullptr)
+		{
+			throw std::runtime_error("The tree is empty");
+		}
 		return pRoot->rec.key;
 	}
+
 };
 

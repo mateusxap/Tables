@@ -1,205 +1,149 @@
-#pragma once
-#include "TTreeTable.h"
+﻿#include "TTreeTable.h"
+#include <algorithm>
 
 class AVLTree : public TTreeTable {
-protected:
-    int Left_Balance(TTreeNode*& pNode) {
-        efficiency++;
-        int res = H_OK;
-        switch (pNode->bal) {
-        case BalRight:
-            pNode->bal = BalOK;
-            res = H_OK;
-            break;
-        case BalOK:
-            pNode->bal = BalLeft;
-            res = H_INC;
-            break;
-        case BalLeft:
-            TTreeNode* p1 = pNode->pLeft;
-            if (p1->bal == BalLeft) {
-                pNode->pLeft = p1->pRight;
-                p1->pRight = pNode;
-                pNode->bal = BalOK;
-                pNode = p1;
-                pNode->bal = BalOK;
-            }
-            else {
-                TTreeNode* p2 = p1->pRight;
-                p1->pRight = p2->pLeft;
-                pNode->pLeft = p2->pRight;
-                p2->pLeft = p1;
-                p2->pRight = pNode;
-                if (p2->bal == BalRight) {
-                    p1->bal = BalLeft;
-                    pNode->bal = BalOK;
-                }
-                else {
-                    p1->bal = BalOK;
-                    pNode->bal = BalRight;
-                }
-                pNode = p2;
-                pNode->bal = BalOK;
-            }
-            res = H_OK;
-            break;
-        }
-        return res;
+private:
+    // Вращение вправо
+    TTreeNode* rightRotate(TTreeNode* y) {
+        TTreeNode* x = y->pLeft;
+        TTreeNode* T2 = x->pRight;
+        x->pRight = y;
+        y->pLeft = T2;
+        y->bal = std::max(getHeight(y->pLeft), getHeight(y->pRight)) + 1;
+        x->bal = std::max(getHeight(x->pLeft), getHeight(x->pRight)) + 1;
+        return x;
     }
 
-    int Right_Balance(TTreeNode*& pNode) {
-        efficiency++;
-        int res = H_OK;
-        switch (pNode->bal) {
-        case BalLeft:
-            pNode->bal = BalOK;
-            res = H_OK;
-            break;
-        case BalOK:
-            pNode->bal = BalRight;
-            res = H_INC;
-            break;
-        case BalRight:
-            TTreeNode* p1 = pNode->pRight;
-            if (p1->bal == BalRight) {
-                pNode->pRight = p1->pLeft;
-                p1->pLeft = pNode;
-                pNode->bal = BalOK;
-                pNode = p1;
-                pNode->bal = BalOK;
-            }
-            else {
-                TTreeNode* p2 = p1->pLeft;
-                p1->pLeft = p2->pRight;
-                pNode->pRight = p2->pLeft;
-                p2->pRight = p1;
-                p2->pLeft = pNode;
-                if (p2->bal == BalLeft) {
-                    p1->bal = BalRight;
-                    pNode->bal = BalOK;
-                }
-                else {
-                    p1->bal = BalOK;
-                    pNode->bal = BalLeft;
-                }
-                pNode = p2;
-                pNode->bal = BalOK;
-            }
-            res = H_OK;
-            break;
-        }
-        return res;
+    // Вращение влево
+    TTreeNode* leftRotate(TTreeNode* x) {
+        TTreeNode* y = x->pRight;
+        TTreeNode* T2 = y->pLeft;
+        y->pLeft = x;
+        x->pRight = T2;
+        x->bal = std::max(getHeight(x->pLeft), getHeight(x->pRight)) + 1;
+        y->bal = std::max(getHeight(y->pLeft), getHeight(y->pRight)) + 1;
+        return y;
     }
 
-    int InsBalTree(TTreeNode*& pNode, TRecord rec) {
-        int res = H_OK;
-        efficiency++;
-        if (pNode == nullptr) {
-            pNode = new TTreeNode(rec);
-            res = H_INC;
-            dataCount++;
-        }
-        else if (pNode->rec.key > rec.key) {
-            int tmp = InsBalTree(pNode->pLeft, rec);
-            if (tmp == H_INC) {
-                res = Left_Balance(pNode);
-            }
-        }
-        else if (pNode->rec.key < rec.key) {
-            int tmp = InsBalTree(pNode->pRight, rec);
-            if (tmp == H_INC) {
-                res = Right_Balance(pNode);
-            }
-        }
-        return res;
+    // Получение баланса узла
+    int getBalanceFactor(TTreeNode* N) {
+        if (N == nullptr)
+            return 0;
+        return getHeight(N->pLeft) - getHeight(N->pRight);
     }
 
-    int RemoveMin(TTreeNode*& pNode) {
-        int res = H_OK;
-        if (pNode->pLeft == nullptr) {
-            pNode = pNode->pRight;
-            res = H_DEC;
+    // Высота узла
+    int getHeight(TTreeNode* N) {
+        if (N == nullptr)
+            return 0;
+        return N->bal;
+    }
+
+    // Вставка узла с балансировкой
+    TTreeNode* insertNode(TTreeNode* node, TRecord rec) {
+        if (node == nullptr)
+            return new TTreeNode(rec);
+
+        if (rec.key < node->rec.key)
+            node->pLeft = insertNode(node->pLeft, rec);
+        else if (rec.key > node->rec.key)
+            node->pRight = insertNode(node->pRight, rec);
+        else
+            return node;
+
+        node->bal = 1 + std::max(getHeight(node->pLeft), getHeight(node->pRight));
+        int balanceFactor = getBalanceFactor(node);
+
+        if (balanceFactor > 1 && rec.key < node->pLeft->rec.key)
+            return rightRotate(node);
+        if (balanceFactor < -1 && rec.key > node->pRight->rec.key)
+            return leftRotate(node);
+        if (balanceFactor > 1 && rec.key > node->pLeft->rec.key) {
+            node->pLeft = leftRotate(node->pLeft);
+            return rightRotate(node);
         }
+        if (balanceFactor < -1 && rec.key < node->pRight->rec.key) {
+            node->pRight = rightRotate(node->pRight);
+            return leftRotate(node);
+        }
+
+        return node;
+    }
+
+    // Удаление узла с балансировкой
+    TTreeNode* deleteNode(TTreeNode* root, int key) {
+        if (root == nullptr)
+            return root;
+
+        if (key < root->rec.key)
+            root->pLeft = deleteNode(root->pLeft, key);
+        else if (key > root->rec.key)
+            root->pRight = deleteNode(root->pRight, key);
         else {
-            res = RemoveMin(pNode->pLeft);
-            if (res != H_OK) {
-                res = Right_Balance(pNode);
-            }
-        }
-        return res;
-    }
-
-    TTreeNode* FindMin(TTreeNode* pNode) {
-        if (pNode == nullptr) {
-            return nullptr;
-        }
-        while (pNode->pLeft != nullptr) {
-            pNode = pNode->pLeft;
-        }
-        return pNode;
-    }
-
-    int DeleteRec(TTreeNode*& pNode, int key) {
-        int res = H_OK;
-        if (pNode == nullptr) return H_OK;
-        efficiency++;
-        if (pNode->rec.key > key) {
-            res = DeleteRec(pNode->pLeft, key);
-            if (res != H_OK) {
-                res = Right_Balance(pNode);
-            }
-        }
-        else if (pNode->rec.key < key) {
-            res = DeleteRec(pNode->pRight, key);
-            if (res != H_OK) {
-                res = Left_Balance(pNode);
-            }
-        }
-        else {
-            dataCount--;
-            if (pNode->pLeft == nullptr) {
-                TTreeNode* temp = pNode;
-                pNode = pNode->pRight;
+            if ((root->pLeft == nullptr) || (root->pRight == nullptr)) {
+                TTreeNode* temp = root->pLeft ? root->pLeft : root->pRight;
+                if (temp == nullptr) {
+                    temp = root;
+                    root = nullptr;
+                }
+                else
+                    *root = *temp;
                 delete temp;
-                res = H_DEC;
-            }
-            else if (pNode->pRight == nullptr) {
-                TTreeNode* temp = pNode;
-                pNode = pNode->pLeft;
-                delete temp;
-                res = H_DEC;
             }
             else {
-                TTreeNode* minNode = FindMin(pNode->pRight);
-                pNode->rec = minNode->rec;
-                res = DeleteRec(pNode->pRight, minNode->rec.key);
-                if (res != H_OK) {
-                    res = Left_Balance(pNode);
-                }
+                TTreeNode* temp = nodeWithMinimumValue(root->pRight);
+                root->rec = temp->rec;
+                root->pRight = deleteNode(root->pRight, temp->rec.key);
             }
         }
-        return res;
+
+        if (root == nullptr)
+            return root;
+
+        root->bal = 1 + std::max(getHeight(root->pLeft), getHeight(root->pRight));
+        int balanceFactor = getBalanceFactor(root);
+
+        if (balanceFactor > 1 && getBalanceFactor(root->pLeft) >= 0)
+            return rightRotate(root);
+        if (balanceFactor > 1 && getBalanceFactor(root->pLeft) < 0) {
+            root->pLeft = leftRotate(root->pLeft);
+            return rightRotate(root);
+        }
+        if (balanceFactor < -1 && getBalanceFactor(root->pRight) <= 0)
+            return leftRotate(root);
+        if (balanceFactor < -1 && getBalanceFactor(root->pRight) > 0) {
+            root->pRight = rightRotate(root->pRight);
+            return leftRotate(root);
+        }
+
+        return root;
+    }
+
+    TTreeNode* nodeWithMinimumValue(TTreeNode* node) {
+        TTreeNode* current = node;
+        while (current->pLeft != nullptr)
+            current = current->pLeft;
+        return current;
     }
 
 public:
+    AVLTree() : TTreeTable() {}
+
     bool Insert(TRecord rec) override {
-        bool res = Find(rec.key);
-        if (res) {
+        if (Find(rec.key))
             return false;
-        }
-        else {
-            InsBalTree(pRoot, rec);
-            return true;
-        }
+
+        pRoot = insertNode(pRoot, rec);
+        dataCount++;
+        return true;
     }
 
     bool Delete(int key) override {
-        if (!Find(key)) {
+        if (!Find(key))
             return false;
-        }
-        else {
-            DeleteRec(pRoot, key);
-            return true;
-        }
+
+        pRoot = deleteNode(pRoot, key);
+        dataCount--;
+        return true;
     }
 };

@@ -6,6 +6,7 @@
 #include "TArrayTable.h"
 #include "TSortTable.h"
 #include "TListHash.h"
+#include "TTreeTable.h"
 
 int main() {
     setlocale(0, "");
@@ -13,19 +14,27 @@ int main() {
     int key;
     TRecord data;
 
+    do {
+        std::cout << "\nВведите размер таблицы: \n";
+        std::cin >> size;
+    } while (size <= 0 || size > MAX_SIZE);
+
+
     // Инициализация таблиц
     AVLTree tableTree;
-    TSortTable tableArrSorted(MAX_SIZE);
-    TScanTable tableArr(MAX_SIZE);
-    TListHash tableListHash(MAX_SIZE);
+    TSortTable tableArrSorted(size);
+    TScanTable tableArr(size);
+    TListHash tableListHash(size);
     TListTable tableList;
+    
+
 
     // Основное меню
     do {
         std::cout
-            << (!tableList.IsEmpty() ? "1. Сбросить таблицы\n" : "")
-            << "2. Добавить данные\n"
-            << (!tableList.IsEmpty() ? "3. Удалить данные\n4. Найти данные \n5. Вывод таблиц\n" : "")
+            << (!tableList.IsEmpty() ? "1.\n Сбросить таблицы\n" : "")
+            << "\n2. Вывод таблиц\n" << "3. Добавить данные\n"
+            << (!tableList.IsEmpty() ? "4. Удалить данные\n5. Найти данные \n" : "")
             << "0. Выход\n"
             << "Введите действие: ";
         std::cin >> work;
@@ -33,18 +42,33 @@ int main() {
         switch (work) {
         case 1:
            /* if (!tableList.IsEmpty()) {*/
-            tableList.Reset();
-            tableTree.Reset();
             tableArr.Reset();
             tableArrSorted.Reset();
+            tableList.Reset();
+            tableTree.Reset();
             tableListHash.Reset();
             /*}
             break;*/
 
         case 2:
-            std::cout << "Please, enter the key: ";
+            if (!tableList.IsEmpty()) {
+                std::cout << "Таблица на массиве:\n";
+                tableArr.Print();
+                std::cout << "Таблица на отсортированном массиве:\n";   
+                tableArrSorted.Print();
+                std::cout << "Таблица на списке:\n";
+                tableList.Print();
+                std::cout << "Таблица на дереве:\n";
+                tableTree.Print();
+                std::cout <<"Корень дерева: " << tableTree.GetRooint() << "\n";
+                std::cout << "Хэш таблица:\n";
+                tableListHash.Print();
+            }
+            break;
+        case 3:
+            std::cout << "Введите ключ: ";
             std::cin >> data.key;
-            std::cout << "Please, enter the data: ";
+            std::cout << "Введите значение: ";
             std::cin >> data.value;
             tableList.Insert(data);
             tableTree.Insert(data);
@@ -54,11 +78,15 @@ int main() {
                 tableArr.Insert(data);
                 tableArrSorted.Insert(data);
             }
+            else
+            {
+                std::cout << "Таблицы на массивах заполнены\n";
+            }
             break;
 
-        case 3:
+        case 4:
             if (!tableList.IsEmpty()) {
-                std::cout << "Please, enter the key: ";
+                std::cout << "Введите ключ: ";
                 std::cin >> key;
                 tableList.Delete(key);
                 tableTree.Delete(key);
@@ -68,25 +96,15 @@ int main() {
             }
             break;
 
-        case 4:
-            if (!tableList.IsEmpty()) {
-                std::cout << "Please, enter the key: ";
-                std::cin >> key;
-                std::cout << (tableList.Find(key) ? "Found in ListTable\n" : "Not found in ListTable\n");
-                std::cout << (tableTree.Find(key) ? "Found in Tree\n" : "Not found in Tree\n");
-                std::cout << (tableArr.Find(key) ? "Found in Array\n" : "Not found in Array\n");
-                std::cout << (tableListHash.Find(key) ? "Found in ListHash\n" : "Not found in ListHash\n");
-                std::cout << (tableArrSorted.Find(key) ? "Found in ArraySorted\n" : "Not found in ArraySorted\n");
-            }
-            break;
-
         case 5:
             if (!tableList.IsEmpty()) {
-                tableList.Print();
-                tableTree.Print();
-                tableArr.Print();
-                tableArrSorted.Print();
-                tableListHash.Print();
+                std::cout << "Введите ключ: ";
+                std::cin >> key;
+                std::cout << (tableList.Find(key) ? "Найден в ListTable\n" : "Не найден в ListTable\n");
+                std::cout << (tableTree.Find(key) ? "Найден в Tree\n" : "Не найден в Tree\n");
+                std::cout << (tableArr.Find(key) ? "Найден в Array\n" : "Не найден в Array\n");
+                std::cout << (tableListHash.Find(key) ? "Найден в ListHash\n" : "Не найден в ListHash\n");
+                std::cout << (tableArrSorted.Find(key) ? "Найден в ArraySorted\n" : "Не найден в ArraySorted\n");
             }
             break;
 
@@ -94,7 +112,7 @@ int main() {
             break;
 
         default:
-            std::cout << "This item doesn't exist!" << std::endl;
+            std::cout << "Нет данного пункта" << std::endl;
             break;
         }
         std::cout << std::endl << std::endl;
@@ -103,4 +121,14 @@ int main() {
     return 0;
 }
 
-//2 1 1 2 3 3 2 2 2
+//10 3 6 l 3 2 a 3 1 z 3 3 t 3 4 q 3 5 b 
+
+  //  6
+  //  /
+  //  2
+  // / \
+  //1   3
+  //      \
+  //       4
+  //        \
+  //         5

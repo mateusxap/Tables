@@ -29,16 +29,19 @@ public:
 //Реализация
 inline bool TScanTable::Find(int key)
 {
+	efficiency = 0;
 	for (int i = 0; i < dataCount; i++)
 	{
-		efficiency++; // ???	
+		efficiency++; 	
 		if (arr[i].key == key)
 		{
 			currentPos = i;
+			std::cout << "Эффективность таблицы на неотсортироованном массиве: " << efficiency << "\n";
 			return true;
 		}
 	}
 	currentPos = dataCount;
+	std::cout << "Эффективность таблицы на неотсортироованном массиве: " << efficiency << "\n";
 	return false;
 }
 

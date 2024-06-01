@@ -16,14 +16,17 @@ public:
 
     bool Find(int key) override
     {
+        efficiency = 0;
         for (currIterator = records.begin(); currIterator != records.end(); ++currIterator)
         {
             efficiency++;
             if (currIterator->key == key)
             {
+                std::cout << "Ёффективность таблицы на списке: " << efficiency << "\n";
                 return true;
             }
         }
+        std::cout << "Ёффективность таблицы на списке: " << efficiency << "\n";
         return false;
     }
 
